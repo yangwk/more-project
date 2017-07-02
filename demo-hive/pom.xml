@@ -1,0 +1,52 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.github.yangwk</groupId>
+		<artifactId>more-project</artifactId>
+		<version>1.0</version>
+	</parent>
+	<artifactId>demo-hive</artifactId>
+	<packaging>war</packaging>
+
+	<properties>
+		<hive.version>2.1.1</hive.version>
+	</properties>
+
+	<dependencies>
+	
+		<dependency>
+			<groupId>jdk.tools</groupId>
+			<artifactId>jdk.tools</artifactId>
+			<version>${java.version}</version>
+			<scope>system</scope>
+			<systemPath>${JAVA_HOME}/lib/tools.jar</systemPath>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.hive</groupId>
+			<artifactId>hive-common</artifactId>
+			<version>${hive.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.hive</groupId>
+			<artifactId>hive-exec</artifactId>
+			<version>${hive.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.hive</groupId>
+			<artifactId>hive-jdbc</artifactId>
+			<version>${hive.version}</version>
+		</dependency>
+				
+		<dependency>
+		    <groupId>org.apache.hive</groupId>
+		    <artifactId>hive-service</artifactId>
+		    <version>${hive.version}</version>
+		</dependency>
+		
+		
+	</dependencies>
+</project>

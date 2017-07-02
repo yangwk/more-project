@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jms="http://www.springframework.org/schema/jms" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+	http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd
+	">
+
+	<!-- enables annotation based configuration -->
+	<context:annotation-config />
+
+	<!-- scans for annotated classes in the com.company package -->
+	<context:component-scan base-package="com.github.yangwk" />
+
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:system.properties</value>
+            </list>
+        </property>
+    </bean>
+
+	<!-- creates an activemq connection factory -->
+	<bean id="amqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<property name="brokerURL" value="${jms.url}" />
+		<property name="userName" value="${jms.username}" />
+		<property name="password" value="${jms.password}" />
+	</bean>
+
+	<!-- CachingConnectionFactory Definition, sessionCacheSize property is the 
+		number of sessions to cache -->
+	<bean id="connectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+		<constructor-arg ref="amqConnectionFactory" />
+		<property name="exceptionListener" ref="jmsExceptionListener" />
+		<property name="sessionCacheSize" value="100" />
+	</bean>
+
+	<!-- JmsTemplate Definition 发送数据使用，不用于接收数据 -->
+	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<constructor-arg ref="connectionFactory" />
+		<property name="sessionTransacted" value="true" />
+	</bean>
+	
+	<!-- 事务配置  -->
+	<bean id="userTransactionService" class="com.atomikos.icatch.config.UserTransactionServiceImp" 
+            init-method="init" destroy-method="shutdownForce">
+        <constructor-arg>
+            <props>
+                <prop key="com.atomikos.icatch.service">com.atomikos.icatch.standalone.UserTransactionServiceFactory</prop>
+            </props>
+        </constructor-arg>
+    </bean>
+	<bean id="ampJtaTransactionManager" class="org.springframework.transaction.jta.JtaTransactionManager">  
+	   	<property name="transactionManager">  
+	        <bean class="com.atomikos.icatch.jta.UserTransactionManager" 
+	        	depends-on="userTransactionService" init-method="init" destroy-method="close">  
+	            <property name="forceShutdown" value="false"/>  
+	        </bean>  
+	    </property>  
+	    <property name="userTransaction">  
+	        <bean class="com.atomikos.icatch.jta.UserTransactionImp"/>
+	    </property>
+	</bean>
+	 
+	 
+	<!-- transaction -->
+	<tx:advice id="ampTxAdvice" transaction-manager="ampJtaTransactionManager">  
+		<tx:attributes> 
+			<tx:method name="*" propagation="REQUIRED" rollback-for="Throwable" />
+		</tx:attributes>
+	</tx:advice>  
+	<aop:config>
+		<aop:pointcut id="ampPointcut" expression="execution(* com.github.yangwk.more.demo.activemq.spring.service..*(..))" />
+		<aop:advisor advice-ref="ampTxAdvice" pointcut-ref="ampPointcut" />
+	</aop:config>
+   	
+
+	<!-- listener container definition using the jms namespace, concurrency 
+		is the max number of concurrent listeners that can be started.
+		this is equivalent to creating multiple distinct listener container bean definitions 
+		and multiple distinct MessageListenerAdapter bean definitions 接收数据使用，不用于发送数据 -->
+	<jms:listener-container concurrency="10" connection-factory="connectionFactory" 
+		acknowledge="auto"
+		error-handler="myErrorHandler" 
+		destination-type="topic" >
+		<jms:listener destination="topic.spring.tx" ref="myMessageListener" />
+	</jms:listener-container>
+
+</beans>

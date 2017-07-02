@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jms="http://www.springframework.org/schema/jms" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+	http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd
+	">
+
+	<!-- enables annotation based configuration -->
+	<context:annotation-config />
+
+	<!-- scans for annotated classes in the com.company package -->
+	<context:component-scan base-package="com.github.yangwk" />
+
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:redis.properties</value>
+            </list>
+        </property>
+    </bean>
+    
+	<!-- creates an jedis connection factory -->
+	<bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+		<property name="hostName" value="${hostName}" />
+		<property name="port" value="${port}" />
+	</bean>
+
+	<!-- redis template definition -->
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+		<property name="connectionFactory" ref="jedisConnectionFactory" />
+		<property name="enableTransactionSupport" value="true" />
+	</bean>
+	
+	<!-- 事务配置  -->
+	<bean id="userTransactionService" class="com.atomikos.icatch.config.UserTransactionServiceImp" 
+            init-method="init" destroy-method="shutdownForce">
+        <constructor-arg>
+            <props>
+                <prop key="com.atomikos.icatch.service">com.atomikos.icatch.standalone.UserTransactionServiceFactory</prop>
+            </props>
+        </constructor-arg>
+    </bean>
+	<bean id="redisJtaTransactionManager" class="org.springframework.transaction.jta.JtaTransactionManager">  
+	   	<property name="transactionManager">  
+	        <bean class="com.atomikos.icatch.jta.UserTransactionManager" 
+	        	depends-on="userTransactionService" init-method="init" destroy-method="close">  
+	            <property name="forceShutdown" value="false"/>  
+	        </bean>  
+	    </property>  
+	    <property name="userTransaction">  
+	        <bean class="com.atomikos.icatch.jta.UserTransactionImp"/>
+	    </property>
+	</bean>
+	 
+	
+	<!-- transaction -->
+	<tx:advice id="redisTxAdvice" transaction-manager="redisJtaTransactionManager">  
+		<tx:attributes> 
+			<tx:method name="*" propagation="REQUIRED" rollback-for="Throwable" />
+		</tx:attributes>
+	</tx:advice>  
+	<aop:config>
+		<aop:pointcut id="redisPointcut" expression="execution(* com.github.yangwk.more.demo.redis.service..*(..))" />
+		<aop:advisor advice-ref="redisTxAdvice" pointcut-ref="redisPointcut" />
+	</aop:config>
+   	
+
+</beans>

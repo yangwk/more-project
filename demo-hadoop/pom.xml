@@ -1,0 +1,105 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.github.yangwk</groupId>
+		<artifactId>more-project</artifactId>
+		<version>1.0</version>
+	</parent>
+	<artifactId>demo-hadoop</artifactId>
+	<packaging>war</packaging>
+
+	<properties>
+		<hadoop.version>2.8.0</hadoop.version>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>jdk.tools</groupId>
+			<artifactId>jdk.tools</artifactId>
+			<version>${java.version}</version>
+			<scope>system</scope>
+			<systemPath>${JAVA_HOME}/lib/tools.jar</systemPath>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-common</artifactId>
+			<version>${hadoop.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-hdfs</artifactId>
+			<version>${hadoop.version}</version>
+		</dependency>
+		
+		<!-- mapreduce begin -->
+		<dependency>
+		    <groupId>org.apache.hadoop</groupId>
+		    <artifactId>hadoop-mapreduce-client-app</artifactId>
+		    <version>${hadoop.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.hadoop</groupId>
+		    <artifactId>hadoop-mapreduce-client-common</artifactId>
+		    <version>${hadoop.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.hadoop</groupId>
+		    <artifactId>hadoop-mapreduce-client-core</artifactId>
+		    <version>${hadoop.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.hadoop</groupId>
+		    <artifactId>hadoop-mapreduce-client-hs</artifactId>
+		    <version>${hadoop.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.hadoop</groupId>
+		    <artifactId>hadoop-mapreduce-client-hs-plugins</artifactId>
+		    <version>${hadoop.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.hadoop</groupId>
+		    <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
+		    <version>${hadoop.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.hadoop</groupId>
+		    <artifactId>hadoop-mapreduce-client-shuffle</artifactId>
+		    <version>${hadoop.version}</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.apache.hadoop</groupId>
+		    <artifactId>hadoop-mapreduce-examples</artifactId>
+		    <version>${hadoop.version}</version>
+		</dependency>
+		<!-- mapreduce end -->
+		
+		<!-- streaming begin -->
+		<dependency>
+		    <groupId>org.apache.hadoop</groupId>
+		    <artifactId>hadoop-streaming</artifactId>
+		    <version>${hadoop.version}</version>
+		</dependency>
+		<!-- streaming end -->
+		
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.23</version>
+			<scope>test</scope>
+		</dependency>
+		
+	</dependencies>
+
+</project>
