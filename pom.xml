@@ -54,5 +54,6 @@
 		<module>demo-hbase</module>
 		<module>demo-hive</module>
 		<module>demo-spark</module>
+		<module>demo-netty</module>
 	</modules>
 </project>
