@@ -27,7 +27,6 @@
 		    	<exclusion>
 		    		<groupId>io.netty</groupId>
 		    		<artifactId>netty-tcnative</artifactId>
-		    		<classifier>osx-x86_64</classifier>
 		    	</exclusion>
 		    </exclusions>
 		</dependency>
