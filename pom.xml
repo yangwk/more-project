@@ -55,5 +55,6 @@
 		<module>demo-hive</module>
 		<module>demo-spark</module>
 		<module>demo-netty</module>
+		<module>demo-lucene</module>
 	</modules>
 </project>
